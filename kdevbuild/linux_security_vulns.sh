@@ -35,20 +35,24 @@ localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 || true
 mkdir -p ${WORKDIR}/release
 
 #==========================================================================#
-#                        build uboot                                       #
+#                        vulns                                             #
 #==========================================================================#
 cd ${WORKDIR}/
 git clone https://git.kernel.org/pub/scm/linux/security/vulns.git vulns.git
-rar a ${WORKDIR}/release/vulns.git.rar vulns.git
+rar a -inul ${WORKDIR}/release/vulns.git.rar vulns.git
+ls -alh ${WORKDIR}/release/vulns.git.rar
+
 cd vulns.git
 find . -name "*.dyad"
 
 #==========================================================================#
-#                        build kernel                                      #
+#                        linux-stable                                      #
 #==========================================================================#
 cd ${WORKDIR}
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-stable.git
-rar a ${WORKDIR}/release/linux-stable.git.rar linux-stable.git
+rar a -inul ${WORKDIR}/release/linux-stable.git.rar linux-stable.git
+ls -alh ${WORKDIR}/release/linux-stable.git.rar
+
 cd linux-stable.git
 ls -alh
 
