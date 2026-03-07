@@ -30,7 +30,8 @@ apt-get install -qq -y --no-install-recommends \
   python-is-python3 qemu-user-static rar rdfind rename rsync sed \
   squashfs-tools swig tar tree u-boot-tools udev unzip util-linux uuid \
   uuid-dev uuid-runtime vim wget whiptail xfsprogs xsltproc xxd xz-utils \
-  zip zlib1g-dev zstd binwalk ripgrep sudo rar
+  zip zlib1g-dev zstd binwalk ripgrep sudo
+
 localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 || true
 mkdir -p ${WORKDIR}/release
 
@@ -39,8 +40,8 @@ mkdir -p ${WORKDIR}/release
 #==========================================================================#
 cd ${WORKDIR}/
 git clone https://git.kernel.org/pub/scm/linux/security/vulns.git vulns.git
-rar a -inul ${WORKDIR}/release/vulns.git.rar vulns.git
-ls -alh ${WORKDIR}/release/vulns.git.rar
+tar -zcf ${WORKDIR}/release/vulns.git.tar.gz vulns.git
+ls -alh ${WORKDIR}/release/vulns.git.tar.gz
 
 cd vulns.git
 find . -name "*.dyad"
@@ -50,13 +51,13 @@ find . -name "*.dyad"
 #==========================================================================#
 cd ${WORKDIR}
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-stable.git
-rar a -inul ${WORKDIR}/release/linux-stable.git.rar linux-stable.git
-ls -alh ${WORKDIR}/release/linux-stable.git.rar
+tar -zcf ${WORKDIR}/release/linux-stable.git.tar.gz linux-stable.git
+ls -alh ${WORKDIR}/release/linux-stable.git.tar.gz
 
 cd linux-stable.git
 ls -alh
 
 ls -alh ${WORKDIR}/release/
-md5sum ${WORKDIR}/release/
+md5sum ${WORKDIR}/release/*
 echo "Build completed successfully!"
 exit 0
