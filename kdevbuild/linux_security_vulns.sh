@@ -30,7 +30,7 @@ apt-get install -qq -y --no-install-recommends \
   python-is-python3 qemu-user-static rar rdfind rename rsync sed \
   squashfs-tools swig tar tree u-boot-tools udev unzip util-linux uuid \
   uuid-dev uuid-runtime vim wget whiptail xfsprogs xsltproc xxd xz-utils \
-  zip zlib1g-dev zstd binwalk ripgrep sudo
+  zip zlib1g-dev zstd binwalk ripgrep sudo &> /dev/null
 
 localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 || true
 mkdir -p ${WORKDIR}/release
@@ -39,23 +39,38 @@ mkdir -p ${WORKDIR}/release
 #                        vulns                                             #
 #==========================================================================#
 cd ${WORKDIR}/
+
 git clone https://git.kernel.org/pub/scm/linux/security/vulns.git vulns.git
 tar -zcf ${WORKDIR}/release/vulns.git.tar.gz vulns.git
 ls -alh ${WORKDIR}/release/vulns.git.tar.gz
-
-cd vulns.git
-find . -name "*.dyad"
+ls -alh vulns.git
 
 #==========================================================================#
 #                        linux-stable                                      #
 #==========================================================================#
 cd ${WORKDIR}
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-stable.git
-tar -zcf ${WORKDIR}/release/linux-stable.git.tar.gz linux-stable.git
-ls -alh ${WORKDIR}/release/linux-stable.git.tar.gz
+ls -alh linux-stable.git
 
-cd linux-stable.git
-ls -alh
+#==========================================================================#
+#                        target kernel                                     #
+#==========================================================================#
+cd ${WORKDIR}
+git clone https://atomgit.com/openeuler/kernel.git openeuler_kernel.git
+ls -alh openeuler_kernel.git
+
+#==========================================================================#
+#                        check patch                                       #
+#==========================================================================#
+cd ${WORKDIR}
+python3 main.py \
+  --dir ${WORKDIR}/vulns.git/cve/published/2026/ \
+  --target ${WORKDIR}/openeuler_kernel.git \
+  --mainline ${WORKDIR}/linux-stable.git \
+  --output ${WORKDIR}/output
+
+cd ${WORKDIR}/output
+tar -zcvf ${WORKDIR}/release/openeuler_kernel_cve.tar.gz .
 
 ls -alh ${WORKDIR}/release/
 md5sum ${WORKDIR}/release/*

@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Show environment
         id: basic_info
@@ -83,7 +83,7 @@ jobs:
       - name: Upload Kernel to Release
         uses: ncipollo/release-action@main
         with:
-          tag: lubancat_lbc-develop-6.1_kernel
+          tag: kernel_cve
           artifacts: /builder/release/*
           allowUpdates: true
           removeArtifacts: false
