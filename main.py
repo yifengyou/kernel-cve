@@ -1,10 +1,11 @@
-import os
-import glob
-import subprocess
 import argparse
+import os
 import re
+import subprocess
+import shutil
 from dataclasses import dataclass
-from typing import List, Tuple, Optional
+from pathlib import Path
+from typing import List, Tuple
 
 
 # --- Data Structure Definitions ---
@@ -94,7 +95,8 @@ class KernelRepo:
                 timeout=60
             )
             if result.returncode != 0:
-                print(f"   Patch application conflict or failure: {result.stderr.strip()[:100]}")
+                print(
+                    f"   Patch application conflict or failure: {result.stderr.strip()[:100]}")
                 return False
             return True
         except Exception as e:
@@ -134,7 +136,7 @@ def extract_cve_id(file_path: str) -> str:
     # (Optional, depending on your file format)
     try:
         with open(file_path, 'r') as f:
-            content = f.read(1024) # Read first 1KB
+            content = f.read(1024)  # Read first 1KB
             match = re.search(r'(CVE-\d{4}-\d+)', content)
             if match:
                 return match.group(1)
@@ -142,6 +144,7 @@ def extract_cve_id(file_path: str) -> str:
         pass
 
     return "Unknown_CVE"
+
 
 def parse_dyad_file(file_path: str) -> List[DyadPair]:
     """Parses a single .dyad file"""
@@ -172,14 +175,15 @@ def parse_dyad_file(file_path: str) -> List[DyadPair]:
 
 # --- Core Logic ---
 
-def process_dyad_files(root_dir: str, repo_a_path: str, repo_b_path: str, output_dir: str):
+def process_dyad_files(root_dir: str, repo_a_path: str, repo_b_path: str,
+                       output_dir: str):
     """Main processing flow"""
 
     repo_a = KernelRepo(repo_a_path, "TargetRepo(A)")
     repo_b = KernelRepo(repo_b_path, "MainlineRepo(B)")
 
-    pattern = os.path.join(root_dir, "**", "*.dyad")
-    dyad_files = glob.glob(pattern, recursive=True)
+    root_path = Path(root_dir)
+    dyad_files = [str(p) for p in root_path.rglob("*.dyad")]
 
     if not dyad_files:
         print(f"No .dyad files found in {root_dir}")
@@ -187,7 +191,7 @@ def process_dyad_files(root_dir: str, repo_a_path: str, repo_b_path: str, output
 
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
-    print(f"Found {len(dyad_files)} dyad files. Output directory: {output_dir}\n")
+    print(f"Found {len(dyad_files)} dyad files. Output dir: {output_dir}\n")
 
     original_cwd = os.getcwd()
 
@@ -201,6 +205,14 @@ def process_dyad_files(root_dir: str, repo_a_path: str, repo_b_path: str, output
             # --- Create CVE specific output directory ---
             cve_output_path = os.path.join(output_dir, pair.cve_id)
             os.makedirs(cve_output_path, exist_ok=True)
+
+            dyad_filename = os.path.basename(file_path)
+            target_dyad_path = os.path.join(cve_output_path, dyad_filename)
+            try:
+                shutil.copy2(file_path, target_dyad_path)
+                print(f"   Dyad file copied to: {target_dyad_path}")
+            except Exception as e:
+                print(f"   Failed to copy dyad file: {e}")
 
             # Define the specific patch file path for this CVE
             patch_filename = f"{pair.cve_id}_{pair.fixed_hash[:8]}.patch"
@@ -218,7 +230,8 @@ def process_dyad_files(root_dir: str, repo_a_path: str, repo_b_path: str, output
             success = repo_a.apply_patch(patch_full_path)
 
             if success:
-                print(f"   Patch applied successfully! Saved to: {patch_full_path}")
+                print(
+                    f"   Patch applied successfully! Saved to: {patch_full_path}")
                 # Optional: Revert immediately if you only want to test applicability
                 # repo_a.revert_patch()
             else:
@@ -269,8 +282,8 @@ if __name__ == "__main__":
         print(f"Error: Target repository path does not exist: {args.target}")
         exit(1)
     if not os.path.exists(args.mainline):
-        print(f"Error: Mainline repository path does not exist: {args.mainline}")
+        print(
+            f"Error: Mainline repository path does not exist: {args.mainline}")
         exit(1)
 
     process_dyad_files(args.dir, args.target, args.mainline, args.output)
-
