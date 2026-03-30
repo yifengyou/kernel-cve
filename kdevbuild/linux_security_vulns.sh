@@ -34,6 +34,8 @@ apt-get install -qq -y --no-install-recommends \
 
 localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 || true
 mkdir -p ${WORKDIR}/release
+git config --global user.name yifengyou
+git config --global user.email 842056007@qq.com
 
 #==========================================================================#
 #                        vulns                                             #
