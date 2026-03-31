@@ -66,7 +66,7 @@ ls -alh openeuler_kernel.git
 #==========================================================================#
 cd ${WORKDIR}
 python3 main.py \
-  --dir ${WORKDIR}/vulns.git/cve/published/2026/ \
+  --dir ${WORKDIR}/vulns.git/cve/published/ \
   --target ${WORKDIR}/openeuler_kernel.git \
   --mainline ${WORKDIR}/linux-stable.git \
   --output ${WORKDIR}/output
