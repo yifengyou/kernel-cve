@@ -34,7 +34,7 @@ apt-get install -qq -y --no-install-recommends \
   python-is-python3 qemu-user-static rar rdfind rename rsync sed \
   squashfs-tools swig tar tree u-boot-tools udev unzip util-linux uuid \
   uuid-dev uuid-runtime vim wget whiptail xfsprogs xsltproc xxd xz-utils \
-  zip zlib1g-dev zstd binwalk ripgrep sudo &> /dev/null
+  zip zlib1g-dev zstd binwalk ripgrep sudo &>/dev/null
 
 localedef -i zh_CN -f UTF-8 zh_CN.UTF-8 || true
 mkdir -p ${WORKDIR}/release
@@ -46,9 +46,36 @@ git config --global user.email 842056007@qq.com
 #==========================================================================#
 cd ${WORKDIR}/
 curl -fsSL https://ollama.com/install.sh | sh
+ollama serve &
+sleep 30
+sync
 ollama pull deepseek-r1:1.5b
 ollama list
 
+curl http://localhost:11434/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "deepseek-r1:1.5b",
+    "messages": [
+      {"role": "user", "content": "详细介绍中国历史"}
+    ],
+    "stream": false
+  }'
+
+
+curl http://localhost:11434/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "deepseek-r1:1.5b",
+    "messages": [
+      {"role": "user", "content": "写一首诗赞美春天"}
+    ],
+    "stream": false
+  }'
+
+nproc
+free -w -h
+lscpu
 
 exit 0
 
@@ -83,7 +110,7 @@ du -sh kernel.git
 #                        config cve-kin                                    #
 #==========================================================================#
 cd ${WORKDIR}
-cat > cve-kin.cfg << EOF
+cat >cve-kin.cfg <<EOF
 [paths]
 data_dir = ${WORKDIR}/vulns.git/cve/published/
 
@@ -107,10 +134,6 @@ EOF
 
 cd ${WORKDIR}
 python3 main.py
-
-
-
-
 
 cd ${WORKDIR}/cve-kin/
 tar -zcvf ${WORKDIR}/release/${SET_ARCHIVE}.tar.gz .
