@@ -49,6 +49,48 @@ jobs:
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-20.09
             set_archive: openeuler_kernel_20.09
+          - set_kernelrepourl: https://gitee.com/anolis/cloud-kernel
+            set_branch: devel-6.6
+            set_archive: anolis_devel-6.6
+          - set_kernelrepourl: https://github.com/rockchip-linux/kernel
+            set_branch: develop-6.6
+            set_archive: rockchip-linux_develop-6.6
+          - set_kernelrepourl: https://github.com/rockchip-linux/kernel
+            set_branch: develop-6.1
+            set_archive: rockchip-linux_develop-6.1
+          - set_kernelrepourl: https://github.com/friendlyarm/kernel-rockchip
+            set_branch: nanopi6-v6.1.y
+            set_archive: friendlyarm_nanopi6-v6.1.y
+          - set_kernelrepourl: https://github.com/friendlyarm/kernel-rockchip
+            set_branch: nanopi6-v6.1.y
+            set_archive: friendlyarm_nanopi6-v6.1.y
+          - set_kernelrepourl: https://github.com/ophub/linux-6.1.y.git
+            set_branch: main
+            set_archive: ophub_linux-6.1.y
+          - set_kernelrepourl: https://github.com/ophub/linux-6.6.y.git
+            set_branch: main
+            set_archive: ophub_linux-6.6.y
+          - set_kernelrepourl: https://github.com/ophub/linux-6.12.y.git
+            set_branch: main
+            set_archive: ophub_linux-6.12.y
+          - set_kernelrepourl: https://github.com/ophub/linux-6.18.y.git
+            set_branch: main
+            set_archive: ophub_linux-6.18.y
+          - set_kernelrepourl: https://github.com/radxa/kernel.git
+            set_branch: linux-6.1-stan-rkr5.1
+            set_archive: radxa_linux-6.1-stan-rkr5.1
+          - set_kernelrepourl: https://github.com/LubanCat/kernel.git
+            set_branch: lbc-develop-6.1
+            set_archive: lubancat_lbc-develop-6.1
+          - set_kernelrepourl: https://gitee.com/openkylin/kernel.git
+            set_branch: linux-6.6-next
+            set_archive: openkylin_linux-6.6-next
+          - set_kernelrepourl: https://gitee.com/openkylin/kernel.git
+            set_branch: linux-6.6-next
+            set_archive: openkylin_linux-6.6-next
+          - set_kernelrepourl: https://github.com/Joshua-Riek/linux-rockchip.git
+            set_branch: noble
+            set_archive: joshua_noble_6.1
     steps:
       - name: Checkout
         uses: actions/checkout@v5
