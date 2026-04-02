@@ -5,6 +5,9 @@ set -euxo pipefail
 WORKDIR=$(pwd)
 export DEBIAN_FRONTEND=noninteractive
 
+SET_KERNELREPOURL=$1
+SET_BRANCH=$2
+
 #==========================================================================#
 #                        init build env                                    #
 #==========================================================================#
@@ -58,21 +61,41 @@ ls -alh linux-stable.git
 #                        target kernel                                     #
 #==========================================================================#
 cd ${WORKDIR}
-git clone https://atomgit.com/openeuler/kernel.git openeuler_kernel.git
-ls -alh openeuler_kernel.git
+git clone -b ${SET_BRANCH} ${SET_KERNELREPOURL} kernel.git
+ls -alh kernel.git
 
 #==========================================================================#
-#                        check patch                                       #
+#                        config cve-kin                                    #
 #==========================================================================#
 cd ${WORKDIR}
-python3 main.py \
-  --dir ${WORKDIR}/vulns.git/cve/published/ \
-  --target ${WORKDIR}/openeuler_kernel.git \
-  --mainline ${WORKDIR}/linux-stable.git \
-  --output ${WORKDIR}/output
+cat > cve-kin.cfg << EOF
+[paths]
+data_dir = ${WORKDIR}/vulns.git/cve/published/
 
-cd ${WORKDIR}/output
-tar -zcvf ${WORKDIR}/release/openeuler_kernel_cve.tar.gz .
+target_repo = ${WORKDIR}/kernel.git
+
+baseline_repo = ${WORKDIR}/linux-stable.git
+
+output_dir = ${WORKDIR}/cve-kin/
+
+log_file = cve-kin.log
+
+[branches]
+target_branch = origin/${SET_BRANCH}
+baseline_branch = origin/master
+EOF
+
+
+#==========================================================================#
+#                        run cve-kin                                       #
+#==========================================================================#
+
+cd ${WORKDIR}
+python3 main.py
+
+
+cd ${WORKDIR}/cve-kin/
+tar -zcvf ${WORKDIR}/release/kernel_cve.tar.gz .
 
 ls -alh ${WORKDIR}/release/
 md5sum ${WORKDIR}/release/*

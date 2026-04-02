@@ -3,16 +3,6 @@ name: linux_security_vulns
 on:
   repository_dispatch:
   workflow_dispatch:
-    inputs:
-      build_type:
-        description: '构建类型'
-        required: false
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - image
-          - kernel
 
 env:
   TZ: America/New_York
@@ -22,7 +12,32 @@ jobs:
   build-kernel:
     if: ${{ github.event.inputs.build_type == 'all' || github.event.inputs.build_type == 'kernel' || github.event.inputs.build_type == '' }}
     runs-on: ubuntu-22.04
-
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: OLK-6.6
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: openEuler-26.09
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: openEuler-25.03
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: openEuler-23.09
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: openEuler-22.09
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: openEuler-22.03-LTS-SP2
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: openEuler-22.03-LTS-SP1
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: openEuler-22.03-LTS
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: openEuler-21.09
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: openEuler-21.03
+          - set_kernelrepourl: https://atomgit.com/openeuler/kernel
+            set_branch: openEuler-20.09
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -72,7 +87,7 @@ jobs:
             ubuntu:22.04 \
             bash -c "
               chmod +x /workspace/kdevbuild/linux_security_vulns.sh ;
-              /workspace/kdevbuild/linux_security_vulns.sh
+              /workspace/kdevbuild/linux_security_vulns.sh ${{ matrix.set_kernelrepourl }} ${{ matrix.set_branch }}
             "
 
       - name: List build output
