@@ -288,7 +288,6 @@ def process_dyad_files(root_dir: str, repo_a_path: str, repo_b_path: str,
 						f.write(f"### 补丁文件未找到或路径无效: {p_path}\n\n")
 
 			logger.debug(f"   Successfully wrote README.md for {pair.cve_id}")
-			success_flag = True
 		except Exception as e:
 			logger.error(f"* Failed to write README.md: {e}")
 
