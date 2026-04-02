@@ -7,6 +7,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 SET_KERNELREPOURL=$1
 SET_BRANCH=$2
+SET_ARCHIVE=$3
 
 #==========================================================================#
 #                        init build env                                    #
@@ -41,7 +42,7 @@ git config --global user.name yifengyou
 git config --global user.email 842056007@qq.com
 
 #==========================================================================#
-#                        vulns                                             #
+#                  clone vulns                                             #
 #==========================================================================#
 cd ${WORKDIR}/
 
@@ -49,13 +50,15 @@ git clone https://git.kernel.org/pub/scm/linux/security/vulns.git vulns.git
 tar -zcf ${WORKDIR}/release/vulns.git.tar.gz vulns.git
 ls -alh ${WORKDIR}/release/vulns.git.tar.gz
 ls -alh vulns.git
+du -sh vulns.git
 
 #==========================================================================#
-#                        linux-stable                                      #
+#                    clone linux-stable                                    #
 #==========================================================================#
 cd ${WORKDIR}
 git clone https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-stable.git
 ls -alh linux-stable.git
+du -sh linux-stable.git
 
 #==========================================================================#
 #                        target kernel                                     #
@@ -63,6 +66,7 @@ ls -alh linux-stable.git
 cd ${WORKDIR}
 git clone -b ${SET_BRANCH} ${SET_KERNELREPOURL} kernel.git
 ls -alh kernel.git
+du -sh kernel.git
 
 #==========================================================================#
 #                        config cve-kin                                    #
@@ -83,8 +87,8 @@ log_file = cve-kin.log
 [branches]
 target_branch = origin/${SET_BRANCH}
 baseline_branch = origin/master
-EOF
 
+EOF
 
 #==========================================================================#
 #                        run cve-kin                                       #
@@ -93,9 +97,8 @@ EOF
 cd ${WORKDIR}
 python3 main.py
 
-
 cd ${WORKDIR}/cve-kin/
-tar -zcvf ${WORKDIR}/release/kernel_cve.tar.gz .
+tar -zcvf ${WORKDIR}/release/${SET_ARCHIVE}.tar.gz .
 
 ls -alh ${WORKDIR}/release/
 md5sum ${WORKDIR}/release/*

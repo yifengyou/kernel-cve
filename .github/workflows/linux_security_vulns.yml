@@ -18,26 +18,37 @@ jobs:
         include:
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: OLK-6.6
+            set_archive: openeuler_kernel_OLK-6.6
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-26.09
+            set_archive: openeuler_26.09
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-25.03
+            set_archive: openeuler_kernel_25.03
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-23.09
+            set_archive: openeuler_kernel_23.09
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-22.09
+            set_archive: openeuler_kernel_22.09
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-22.03-LTS-SP2
+            set_archive: openeuler_kernel_22.03-LTS-SP2
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-22.03-LTS-SP1
+            set_archive: openeuler_kernel_22.03-LTS-SP1
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-22.03-LTS
+            set_archive: openeuler_kernel_22.03-LTS
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-21.09
+            set_archive: openeuler_kernel_21.09
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-21.03
+            set_archive: openeuler_kernel_21.03
           - set_kernelrepourl: https://atomgit.com/openeuler/kernel
             set_branch: openEuler-20.09
+            set_archive: openeuler_kernel_20.09
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -87,7 +98,7 @@ jobs:
             ubuntu:22.04 \
             bash -c "
               chmod +x /workspace/kdevbuild/linux_security_vulns.sh ;
-              /workspace/kdevbuild/linux_security_vulns.sh ${{ matrix.set_kernelrepourl }} ${{ matrix.set_branch }}
+              /workspace/kdevbuild/linux_security_vulns.sh ${{ matrix.set_kernelrepourl }} ${{ matrix.set_branch }}  ${{ matrix.set_archive }}
             "
 
       - name: List build output
@@ -98,7 +109,7 @@ jobs:
       - name: Upload Kernel to Release
         uses: ncipollo/release-action@main
         with:
-          tag: kernel_cve
+          tag: linux_kernel_cve
           artifacts: /builder/release/*
           allowUpdates: true
           removeArtifacts: false
@@ -107,8 +118,9 @@ jobs:
           body: | # linux_security_vulns
 
             ## 发布内容
-            - **Report** - kernel cve repo
+            - **Report** - linux kernel cve
 
             ## 免责声明
-            - **按原样提供**：镜像不作任何保证，使用风险自负
+            - **按原样提供**：不作任何保证，使用风险自负
+            - **无任何商业用途**：无任何商业用途，无任何官方关联
 
