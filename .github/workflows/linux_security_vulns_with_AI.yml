@@ -98,8 +98,8 @@ jobs:
             ubuntu:22.04 \
             bash -c "
               chmod +x /workspace/kdevbuild/linux_security_vulns_with_ai.sh ;
-              /workspace/kdevbuild/linux_security_vulns_with_ai.sh ${{ matrix.set_kernelrepourl }} ${{ matrix.set_branch}}
-          ${{ matrix.set_archive }}
+              /workspace/kdevbuild/linux_security_vulns_with_ai.sh \
+                    ${{ matrix.set_kernelrepourl }} ${{ matrix.set_branch}}  ${{ matrix.set_archive }}
             "
 
       - name: List build output
