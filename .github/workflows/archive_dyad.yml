@@ -1,0 +1,83 @@
+name: archive dyad
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+
+env:
+  TZ: America/New_York
+  ACTIONS_STEP_DEBUG: true
+
+jobs:
+  build-kernel:
+    if: ${{ github.event.inputs.build_type == 'all' || github.event.inputs.build_type == 'kernel' || github.event.inputs.build_type == '' }}
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Show environment
+        id: basic_info
+        run: |
+          nproc
+          uname -a
+          cat /etc/*release
+          free -h
+          mount
+          df -h
+          cat /proc/cpuinfo
+          cat /proc/meminfo
+
+      - name: Create simulated physical disk
+        run: |
+          mnt_size=$(expr $(df -h /mnt | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 1)
+          root_size=$(expr $(df -h / | tail -1 | awk '{print $4}' | sed 's/[[:alpha:]]//g' | sed 's/\..*//') - 4)
+          sudo truncate -s "${mnt_size}"G /mnt/mnt.img
+          sudo truncate -s "${root_size}"G /root.img
+          sudo losetup /dev/loop6 /mnt/mnt.img
+          sudo losetup /dev/loop7 /root.img
+          sudo pvcreate /dev/loop6
+          sudo pvcreate /dev/loop7
+          sudo vgcreate github /dev/loop6 /dev/loop7
+          sudo lvcreate -n runner -l 100%FREE github
+          sudo mkfs.xfs /dev/github/runner
+          sudo mkdir -p /builder
+          sudo mount /dev/github/runner /builder
+          sudo chown -R runner.runner /builder
+          df -Th
+
+      - name: Run Kernel Build in Ubuntu 22.04 container
+        working-directory: /builder
+        run: |
+          pwd
+          git clone https://git.kernel.org/pub/scm/linux/security/vulns.git vulns.git
+          ls -alh vulns.git
+          du -sh vulns.git
+          mkdir -p /builder/release
+          tar -zcvf /builder/release/vulns.git.tar.gz vulns.git
+
+      - name: List build output
+        run: |
+          ls -alh  /builder/release/*
+          md5sum /builder/release/*
+
+      - name: Upload Kernel to Release
+        uses: ncipollo/release-action@main
+        timeout-minutes: 8
+        with:
+          tag: archive_dyad
+          artifacts: /builder/release/*
+          allowUpdates: true
+          removeArtifacts: false
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: | # archive_dyad
+
+            ## 发布内容
+            - linux kernel dyad repo archive
+
+            ## 免责声明
+            - **按原样提供**：不作任何保证，使用风险自负
+            - **无任何商业用途**：无任何商业用途，无任何官方关联
+
